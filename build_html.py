@@ -1,0 +1,334 @@
+import json, os
+
+with open("data.json", "r", encoding="utf-8") as f:
+    raw_json = f.read().strip()
+
+html = """<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Big Tech Financial Comparison | SEC FY 2023</title>
+  <meta name="description" content="KPI comparison of Apple, Microsoft, Alphabet, Meta and Amazon from SEC 10-K FY 2023." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root{--bg:#0b0f19;--surface:#111827;--card:#1a2234;--border:rgba(255,255,255,.07);--text:#e2e8f0;--muted:#94a3b8;--accent:#6366f1;--green:#34d399;--radius:14px;--shadow:0 4px 32px rgba(0,0,0,.45)}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+    nav{position:sticky;top:0;z-index:100;background:rgba(11,15,25,.88);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center}
+    .nav-brand{font-weight:700;font-size:.95rem}
+    .nav-links{display:flex;gap:20px;margin-left:auto}
+    .nav-links a{font-size:.82rem;color:var(--muted);text-decoration:none;font-weight:500;transition:color .2s}
+    .nav-links a:hover{color:var(--text)}
+    .hero{text-align:center;padding:72px 24px 48px;background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(99,102,241,.18) 0%,transparent 70%);border-bottom:1px solid var(--border)}
+    .hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.35);color:#a5b4fc;font-size:.75rem;font-weight:600;padding:5px 14px;border-radius:999px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:20px}
+    h1{font-size:clamp(2rem,5vw,3.4rem);font-weight:800;letter-spacing:-.03em;line-height:1.1;background:linear-gradient(135deg,#e2e8f0 30%,#6366f1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .hero-sub{margin-top:14px;color:var(--muted);font-size:1rem;max-width:600px;margin-inline:auto;line-height:1.7}
+    .hero-meta{margin-top:20px;display:flex;justify-content:center;gap:24px;flex-wrap:wrap;font-size:.82rem;color:#64748b}
+    .container{max-width:1200px;margin:0 auto;padding:0 24px}
+    section{padding:56px 0}
+    .section-title{font-size:1.6rem;font-weight:700;letter-spacing:-.02em;margin-bottom:8px}
+    .section-sub{color:var(--muted);font-size:.9rem;margin-bottom:36px}
+    .winner-banner{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;background:linear-gradient(135deg,#1e1b4b,#1a2234);border:1px solid rgba(99,102,241,.4);border-radius:var(--radius);padding:32px 36px;box-shadow:0 0 40px rgba(99,102,241,.12);margin-bottom:48px}
+    .winner-left h2{font-size:.75rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#818cf8;margin-bottom:8px}
+    .winner-name{font-size:2.6rem;font-weight:800;background:linear-gradient(90deg,#a5b4fc,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-.03em}
+    .winner-ticker{font-size:1rem;color:var(--muted);font-weight:500;margin-top:4px}
+    .winner-right{display:flex;gap:16px;flex-wrap:wrap}
+    .winner-stat{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;padding:16px 22px;text-align:center;min-width:110px}
+    .winner-stat .val{font-size:1.5rem;font-weight:700;color:var(--green)}
+    .winner-stat .lbl{font-size:.72rem;color:var(--muted);margin-top:4px;font-weight:500}
+    .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:18px;margin-bottom:48px}
+    .kpi-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px 22px;transition:transform .2s,box-shadow .2s;position:relative;overflow:hidden}
+    .kpi-card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--kpi-color,var(--accent));border-radius:3px 3px 0 0}
+    .kpi-card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+    .kpi-label{font-size:.72rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+    .kpi-winner{font-size:1.4rem;font-weight:700}
+    .kpi-value{font-size:1rem;color:var(--muted);margin-top:4px}
+    .kpi-desc{font-size:.76rem;color:#475569;margin-top:10px;line-height:1.5}
+    .table-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:auto;box-shadow:var(--shadow);margin-bottom:48px}
+    table{width:100%;border-collapse:collapse;font-size:.88rem;min-width:700px}
+    thead{background:#0f172a}
+    th{padding:14px 16px;text-align:left;font-size:.72rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+    td{padding:13px 16px;border-top:1px solid var(--border);vertical-align:middle}
+    tr:hover td{background:rgba(255,255,255,.025)}
+    .company-name{font-weight:600}
+    .company-ticker{display:inline-block;font-size:.7rem;font-weight:600;padding:2px 8px;border-radius:4px;margin-left:6px;background:rgba(255,255,255,.06);color:var(--muted);vertical-align:middle}
+    .badge-best{display:inline-block;font-size:.62rem;font-weight:700;padding:2px 7px;border-radius:4px;margin-left:5px;background:rgba(52,211,153,.15);color:#34d399;border:1px solid rgba(52,211,153,.3);vertical-align:middle}
+    .rank-badge{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;font-size:.78rem;font-weight:700;background:rgba(255,255,255,.07);color:var(--muted)}
+    .rank-1{background:rgba(250,204,21,.15);color:#fbbf24}
+    .rank-2{background:rgba(148,163,184,.12);color:#cbd5e1}
+    .rank-3{background:rgba(180,83,9,.12);color:#d97706}
+    .bars-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:24px;margin-bottom:48px}
+    .bar-panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:28px 24px}
+    .bar-panel h3{font-size:.9rem;font-weight:700;margin-bottom:4px}
+    .bar-panel p{font-size:.75rem;color:var(--muted);margin-bottom:20px;line-height:1.5}
+    .bar-row{margin-bottom:14px}
+    .bar-meta{display:flex;justify-content:space-between;margin-bottom:6px;font-size:.8rem}
+    .bar-company{font-weight:600}
+    .bar-val{color:var(--muted)}
+    .bar-track{height:8px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden}
+    .bar-fill{height:100%;border-radius:999px;width:0;transition:width 1.1s ease}
+    .profiles-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;margin-bottom:48px}
+    .profile-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;transition:transform .2s,box-shadow .2s}
+    .profile-card:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+    .profile-dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:8px}
+    .profile-ticker{font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+    .profile-name{font-size:1.1rem;font-weight:700;margin-bottom:4px}
+    .profile-hq{font-size:.78rem;color:var(--muted);margin-bottom:16px}
+    .pr{display:flex;justify-content:space-between;padding:6px 0;border-top:1px solid var(--border);font-size:.8rem}
+    .pk{color:var(--muted)} .pv{font-weight:600}
+    .score-bar-wrap{margin-top:14px}
+    .score-bar-lbl{font-size:.72rem;color:var(--muted);margin-bottom:5px;display:flex;justify-content:space-between}
+    .score-track{height:6px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden}
+    .score-fill{height:100%;border-radius:999px;width:0;transition:width 1.2s ease}
+    footer{border-top:1px solid var(--border);padding:36px 24px;text-align:center;color:#475569;font-size:.8rem}
+    footer a{color:#6366f1;text-decoration:none}
+  </style>
+</head>
+<body>
+<nav>
+  <span class="nav-brand">&#128200; SEC Financial Intelligence</span>
+  <div class="nav-links">
+    <a href="#overview">Overview</a>
+    <a href="#kpis">KPI Leaders</a>
+    <a href="#comparison">Comparison</a>
+    <a href="#profiles">Profiles</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-badge">SEC EDGAR &middot; FY 2023 &middot; 10-K Filings</div>
+  <h1>Big Tech Financial<br/>KPI Comparison</h1>
+  <p class="hero-sub">A structured financial comparison of Apple, Microsoft, Alphabet, Meta, and Amazon across five key performance indicators derived from U.S. SEC annual filings.</p>
+  <div class="hero-meta">
+    <span>&#128197; Fiscal Year 2023</span>
+    <span>&#127970; Technology Sector</span>
+    <span>&#128176; Currency: USD</span>
+    <span>&#128220; Source: SEC EDGAR</span>
+  </div>
+</div>
+
+<div class="container">
+  <section id="overview">
+    <div class="winner-banner">
+      <div class="winner-left">
+        <h2>&#127942; Overall Financial Leader</h2>
+        <div class="winner-name" id="wName"></div>
+        <div class="winner-ticker" id="wTicker"></div>
+      </div>
+      <div class="winner-right" id="wStats"></div>
+    </div>
+    <div class="section-title" id="kpis">Five KPIs Evaluated</div>
+    <div class="section-sub">Each KPI captures a distinct dimension of financial health</div>
+    <div class="kpi-grid" id="kpiCards"></div>
+  </section>
+
+  <section id="comparison">
+    <div class="section-title">Company Comparison Table</div>
+    <div class="section-sub">All five companies ranked by cumulative KPI score. Best-in-class values are highlighted.</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Rank</th><th>Company</th><th>Revenue (Bn)</th>
+            <th>Net Margin</th><th>ROE</th><th>D/E Ratio</th>
+            <th>EPS (USD)</th><th>YoY Growth</th><th>Score</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+    <div class="bars-grid" id="barsGrid"></div>
+  </section>
+
+  <section id="profiles">
+    <div class="section-title">Company Profiles</div>
+    <div class="section-sub">Detailed financial snapshot per company for FY 2023</div>
+    <div class="profiles-grid" id="profilesGrid"></div>
+  </section>
+</div>
+
+<footer>
+  <p>Data from <a href="https://www.sec.gov/dera/data/financial-statements" target="_blank">U.S. SEC EDGAR</a> 10-K Annual Filings &mdash; FY 2023. For educational purposes only.</p>
+</footer>
+
+<script>
+const DATA = DATA_PLACEHOLDER;
+
+const KPI_META = {
+  net_margin: { label: "Net Profit Margin", unit: "%", color: "#60a5fa",
+    desc: "Net Income divided by Revenue. Shows how much of each dollar earned becomes profit." },
+  roe:        { label: "Return on Equity",  unit: "%", color: "#34d399",
+    desc: "Net Income divided by Shareholders Equity. Measures returns on shareholder investment." },
+  de_ratio:   { label: "Debt-to-Equity",    unit: "x", color: "#f87171",
+    desc: "Total Debt divided by Equity. Lower values mean a safer, less-leveraged balance sheet.", lowerBetter: true },
+  eps:        { label: "Earnings Per Share", unit: "$", color: "#fbbf24",
+    desc: "Net Income divided by Diluted Shares Outstanding. Per-share profitability." },
+  rev_growth: { label: "Revenue Growth YoY", unit: "%", color: "#a78bfa",
+    desc: "Year-over-year top-line growth. Reflects business momentum and market expansion." }
+};
+
+function fmt(v, unit) {
+  if (unit === "$") return "$" + v.toFixed(2);
+  if (unit === "%") return v.toFixed(2) + "%";
+  if (unit === "x") return v.toFixed(2) + "x";
+  return v;
+}
+
+// Winner Banner
+(function() {
+  const winner = DATA.verdict.overall_best;
+  const co = DATA.companies[winner];
+  const kpis = co.kpis;
+  document.getElementById("wName").textContent = winner;
+  document.getElementById("wTicker").textContent = co.ticker + " \u00b7 " + co.hq;
+  const wrap = document.getElementById("wStats");
+  [
+    { val: "$" + kpis.revenue_bn + "B", lbl: "Revenue" },
+    { val: kpis.net_margin + "%",        lbl: "Net Margin" },
+    { val: kpis.roe + "%",               lbl: "ROE" },
+    { val: kpis.de_ratio + "x",          lbl: "D/E Ratio" },
+    { val: "$" + kpis.eps,               lbl: "EPS" }
+  ].forEach(function(s) {
+    var d = document.createElement("div");
+    d.className = "winner-stat";
+    d.innerHTML = "<div class='val'>" + s.val + "</div><div class='lbl'>" + s.lbl + "</div>";
+    wrap.appendChild(d);
+  });
+})();
+
+// KPI Cards
+(function() {
+  var wrap = document.getElementById("kpiCards");
+  var best = DATA.verdict.best_per_kpi;
+  Object.keys(KPI_META).forEach(function(key) {
+    var meta = KPI_META[key];
+    var winner = best[key];
+    var co = DATA.companies[winner];
+    var val = co.kpis[key];
+    var card = document.createElement("div");
+    card.className = "kpi-card";
+    card.style.setProperty("--kpi-color", meta.color);
+    card.innerHTML =
+      "<div class='kpi-label'>" + meta.label + "</div>" +
+      "<div class='kpi-winner' style='color:" + meta.color + "'>" + winner + "</div>" +
+      "<div class='kpi-value'>" + fmt(val, meta.unit) + (meta.lowerBetter ? " (lowest)" : "") + "</div>" +
+      "<div class='kpi-desc'>" + meta.desc + "</div>";
+    wrap.appendChild(card);
+  });
+})();
+
+// Comparison Table
+(function() {
+  var tbody = document.getElementById("tableBody");
+  var best = DATA.verdict.best_per_kpi;
+  DATA.verdict.ranking.forEach(function(name, idx) {
+    var co = DATA.companies[name];
+    var kpis = co.kpis;
+    var score = DATA.verdict.cumulative[name];
+    var rank = idx + 1;
+    var rankClass = rank <= 3 ? "rank-" + rank : "";
+    function badge(k) {
+      return best[k] === name ? "<span class='badge-best'>BEST</span>" : "";
+    }
+    var growth = (kpis.rev_growth >= 0 ? "+" : "") + kpis.rev_growth;
+    var tr = document.createElement("tr");
+    tr.innerHTML =
+      "<td><span class='rank-badge " + rankClass + "'>" + rank + "</span></td>" +
+      "<td><span class='company-name'>" + name + "</span><span class='company-ticker'>" + co.ticker + "</span></td>" +
+      "<td>$" + kpis.revenue_bn + "B</td>" +
+      "<td>" + kpis.net_margin + "%" + badge("net_margin") + "</td>" +
+      "<td>" + kpis.roe + "%" + badge("roe") + "</td>" +
+      "<td>" + kpis.de_ratio + "x" + badge("de_ratio") + "</td>" +
+      "<td>$" + kpis.eps + badge("eps") + "</td>" +
+      "<td>" + growth + "%" + badge("rev_growth") + "</td>" +
+      "<td style='font-weight:700;color:" + co.color + "'>" + score + "</td>";
+    tbody.appendChild(tr);
+  });
+})();
+
+// Bar Charts
+(function() {
+  var wrap = document.getElementById("barsGrid");
+  var names = Object.keys(DATA.companies);
+  Object.keys(KPI_META).forEach(function(key) {
+    var meta = KPI_META[key];
+    var values = names.map(function(n) {
+      return { name: n, val: DATA.companies[n].kpis[key], color: DATA.companies[n].color };
+    });
+    var max = Math.max.apply(null, values.map(function(v) { return v.val; }));
+    var min = Math.min.apply(null, values.map(function(v) { return v.val; }));
+    var sorted = values.slice().sort(function(a, b) {
+      return meta.lowerBetter ? a.val - b.val : b.val - a.val;
+    });
+    var panel = document.createElement("div");
+    panel.className = "bar-panel";
+    panel.innerHTML = "<h3>" + meta.label + "</h3><p>" + meta.desc + "</p>";
+    sorted.forEach(function(item) {
+      var pct = meta.lowerBetter
+        ? ((max - item.val) / (max - min || 1)) * 100
+        : ((item.val - min) / (max - min || 1)) * 100;
+      var div = document.createElement("div");
+      div.className = "bar-row";
+      div.innerHTML =
+        "<div class='bar-meta'><span class='bar-company'>" + item.name + "</span><span class='bar-val'>" + fmt(item.val, meta.unit) + "</span></div>" +
+        "<div class='bar-track'><div class='bar-fill' style='background:" + item.color + "' data-pct='" + pct.toFixed(1) + "'></div></div>";
+      panel.appendChild(div);
+    });
+    wrap.appendChild(panel);
+  });
+})();
+
+// Company Profiles
+(function() {
+  var wrap = document.getElementById("profilesGrid");
+  var cumulative = DATA.verdict.cumulative;
+  var maxScore = Math.max.apply(null, Object.values(cumulative));
+  DATA.verdict.ranking.forEach(function(name) {
+    var co = DATA.companies[name];
+    var kpis = co.kpis;
+    var raw = co.raw;
+    var score = cumulative[name];
+    var scorePct = ((score / maxScore) * 100).toFixed(1);
+    var growth = (kpis.rev_growth >= 0 ? "+" : "") + kpis.rev_growth;
+    var card = document.createElement("div");
+    card.className = "profile-card";
+    card.innerHTML =
+      "<div class='profile-ticker'><span class='profile-dot' style='background:" + co.color + "'></span>" + co.ticker + "</div>" +
+      "<div class='profile-name'>" + name + "</div>" +
+      "<div class='profile-hq'>" + co.hq + " &middot; est. " + co.founded + "</div>" +
+      "<div>" +
+        "<div class='pr'><span class='pk'>Revenue</span><span class='pv'>$" + kpis.revenue_bn + "B</span></div>" +
+        "<div class='pr'><span class='pk'>Net Income</span><span class='pv'>$" + (raw.net_income_fy23/1000).toFixed(1) + "B</span></div>" +
+        "<div class='pr'><span class='pk'>Net Margin</span><span class='pv'>" + kpis.net_margin + "%</span></div>" +
+        "<div class='pr'><span class='pk'>ROE</span><span class='pv'>" + kpis.roe + "%</span></div>" +
+        "<div class='pr'><span class='pk'>D/E Ratio</span><span class='pv'>" + kpis.de_ratio + "x</span></div>" +
+        "<div class='pr'><span class='pk'>EPS</span><span class='pv'>$" + kpis.eps + "</span></div>" +
+        "<div class='pr'><span class='pk'>YoY Growth</span><span class='pv'>" + growth + "%</span></div>" +
+      "</div>" +
+      "<div class='score-bar-wrap'>" +
+        "<div class='score-bar-lbl'><span>Overall Score</span><span>" + score + " pts</span></div>" +
+        "<div class='score-track'><div class='score-fill' style='background:" + co.color + "' data-pct='" + scorePct + "'></div></div>" +
+      "</div>";
+    wrap.appendChild(card);
+  });
+})();
+
+// Animate bars
+setTimeout(function() {
+  document.querySelectorAll("[data-pct]").forEach(function(el) {
+    el.style.width = el.dataset.pct + "%";
+  });
+}, 400);
+</script>
+</body>
+</html>"""
+
+html = html.replace("DATA_PLACEHOLDER", raw_json)
+
+with open("index.html", "w", encoding="utf-8") as f:
+    f.write(html)
+
+print("index.html written - " + str(os.path.getsize("index.html")) + " bytes")

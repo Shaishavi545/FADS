@@ -1,0 +1,193 @@
+{
+  "meta": {
+    "title": "Big Tech \u2014 SEC Financial KPI Comparison (FY 2023)",
+    "sector": "Technology",
+    "fiscal_year": "FY 2023",
+    "data_source": "U.S. SEC EDGAR 10-K Annual Filings",
+    "currency": "USD"
+  },
+  "companies": {
+    "Apple": {
+      "ticker": "AAPL",
+      "color": "#60a5fa",
+      "sector": "Technology",
+      "hq": "Cupertino, CA",
+      "founded": 1976,
+      "kpis": {
+        "revenue_bn": 383.3,
+        "net_margin": 25.31,
+        "roe": 156.08,
+        "de_ratio": 1.79,
+        "eps": 6.2,
+        "rev_growth": -2.8
+      },
+      "raw": {
+        "revenue_fy23": 383285,
+        "revenue_fy22": 394328,
+        "net_income_fy23": 96995,
+        "total_equity_fy23": 62146,
+        "total_debt_fy23": 111088,
+        "shares_outstanding": 15634
+      },
+      "scores": {
+        "net_margin": 69.4,
+        "roe": 100.0,
+        "de_ratio": 0.0,
+        "eps": 26.3,
+        "rev_growth": 0.0
+      }
+    },
+    "Microsoft": {
+      "ticker": "MSFT",
+      "color": "#34d399",
+      "sector": "Technology",
+      "hq": "Redmond, WA",
+      "founded": 1975,
+      "kpis": {
+        "revenue_bn": 211.9,
+        "net_margin": 34.15,
+        "roe": 35.09,
+        "de_ratio": 0.29,
+        "eps": 9.74,
+        "rev_growth": 6.88
+      },
+      "raw": {
+        "revenue_fy23": 211915,
+        "revenue_fy22": 198270,
+        "net_income_fy23": 72361,
+        "total_equity_fy23": 206223,
+        "total_debt_fy23": 59965,
+        "shares_outstanding": 7432
+      },
+      "scores": {
+        "net_margin": 100.0,
+        "roe": 14.2,
+        "de_ratio": 86.2,
+        "eps": 54.8,
+        "rev_growth": 52.4
+      }
+    },
+    "Alphabet": {
+      "ticker": "GOOGL",
+      "color": "#fbbf24",
+      "sector": "Technology",
+      "hq": "Mountain View, CA",
+      "founded": 1998,
+      "kpis": {
+        "revenue_bn": 307.4,
+        "net_margin": 24.01,
+        "roe": 26.04,
+        "de_ratio": 0.05,
+        "eps": 5.75,
+        "rev_growth": 8.68
+      },
+      "raw": {
+        "revenue_fy23": 307394,
+        "revenue_fy22": 282836,
+        "net_income_fy23": 73795,
+        "total_equity_fy23": 283379,
+        "total_debt_fy23": 13253,
+        "shares_outstanding": 12823
+      },
+      "scores": {
+        "net_margin": 64.9,
+        "roe": 7.8,
+        "de_ratio": 100.0,
+        "eps": 22.6,
+        "rev_growth": 62.1
+      }
+    },
+    "Meta": {
+      "ticker": "META",
+      "color": "#a78bfa",
+      "sector": "Technology",
+      "hq": "Menlo Park, CA",
+      "founded": 2004,
+      "kpis": {
+        "revenue_bn": 134.9,
+        "net_margin": 28.98,
+        "roe": 25.53,
+        "de_ratio": 0.24,
+        "eps": 15.35,
+        "rev_growth": 15.69
+      },
+      "raw": {
+        "revenue_fy23": 134902,
+        "revenue_fy22": 116609,
+        "net_income_fy23": 39098,
+        "total_equity_fy23": 153168,
+        "total_debt_fy23": 37228,
+        "shares_outstanding": 2547
+      },
+      "scores": {
+        "net_margin": 82.1,
+        "roe": 7.4,
+        "de_ratio": 89.1,
+        "eps": 100.0,
+        "rev_growth": 100.0
+      }
+    },
+    "Amazon": {
+      "ticker": "AMZN",
+      "color": "#f87171",
+      "sector": "Technology",
+      "hq": "Seattle, WA",
+      "founded": 1994,
+      "kpis": {
+        "revenue_bn": 574.8,
+        "net_margin": 5.29,
+        "roe": 15.07,
+        "de_ratio": 0.72,
+        "eps": 2.94,
+        "rev_growth": 11.83
+      },
+      "raw": {
+        "revenue_fy23": 574785,
+        "revenue_fy22": 513983,
+        "net_income_fy23": 30425,
+        "total_equity_fy23": 201875,
+        "total_debt_fy23": 145200,
+        "shares_outstanding": 10333
+      },
+      "scores": {
+        "net_margin": 0.0,
+        "roe": 0.0,
+        "de_ratio": 61.5,
+        "eps": 0.0,
+        "rev_growth": 79.1
+      }
+    }
+  },
+  "verdict": {
+    "best_per_kpi": {
+      "net_margin": "Microsoft",
+      "roe": "Apple",
+      "de_ratio": "Alphabet",
+      "eps": "Meta",
+      "rev_growth": "Meta"
+    },
+    "cumulative": {
+      "Apple": 195.7,
+      "Microsoft": 307.6,
+      "Alphabet": 257.4,
+      "Meta": 378.6,
+      "Amazon": 140.6
+    },
+    "overall_best": "Meta",
+    "ranking": [
+      "Meta",
+      "Microsoft",
+      "Alphabet",
+      "Apple",
+      "Amazon"
+    ]
+  },
+  "kpi_definitions": {
+    "revenue_bn": "Total annual revenue in USD Billions.",
+    "net_margin": "Net Profit Margin (%) \u2014 Net Income divided by Revenue. Shows how much profit is generated per dollar of revenue.",
+    "roe": "Return on Equity (%) \u2014 Net Income divided by Shareholders Equity. Measures profitability relative to shareholder investment.",
+    "de_ratio": "Debt-to-Equity Ratio \u2014 Total Debt divided by Shareholders Equity. Lower values indicate a stronger balance sheet.",
+    "eps": "Earnings Per Share (USD) \u2014 Net Income divided by Diluted Shares Outstanding.",
+    "rev_growth": "Year-over-Year Revenue Growth (%) \u2014 (FY23 Revenue minus FY22 Revenue) divided by FY22 Revenue."
+  }
+}
